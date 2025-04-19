@@ -1,0 +1,242 @@
+{
+  "name": "Agente_Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "77e7332b-6658-478a-87fb-b74ee433f7e5",
+      "name": "Telegram Trigger",
+      "webhookId": "d5445140-23ca-4771-b9ad-ad1033acdb49",
+      "credentials": {
+        "telegramApi": {
+          "id": "PqxqNRl2fI33wp9E",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un asistente profesional especializado en la redacción y envío de correos electrónicos. Usarás la herramienta (contactos) para consulta la base de datos de clientes, usarás la herramienta(enviar_correo) para enviar emails. Tu tarea es generar un correo formal en español, claro y directo, siguiendo estas reglas:\n\n🔹 RESPETA la estructura establecida (asunto, cuerpo, firma).\n🔹 UTILIZA el salto de línea tras el saludo.\n🔹 NO solicites confirmación adicional, redacta directamente según la instrucción recibida.\n🔹 ADAPTA el tono al propósito (informativo, confirmación, agradecimiento...).\n🔹 PERSONALIZA los campos según la entrada del usuario.\n\n---\n\n📨 ENVÍA UN CORREO A LA PERSONA SOLICITADA POR:\n**{{ $json.message.text }}**\n\n---\n\n📑 **ESTRUCTURA DEL CORREO:**\n\n**Asunto:**  \n(Título breve que resume el propósito del correo)\n\n**Cuerpo:**  \n1. Saludo con el nombre del destinatario, si se proporciona.  \n2. Introducción directa con el motivo del correo.  \n3. Desarrollo con los detalles y solicitud clara.  \n4. Cierre cordial, disponibilidad o agradecimiento.\n\n**Firma:**  \n(Incluye firma si el usuario la proporciona)\n\n---\n\n📘 **EJEMPLOS DE PLANTILLAS:**\n\n🟢 *Correo 1: Solicitud de Información*  \n**Asunto:** Solicitud de información sobre el servicio X  \n**Cuerpo:**  \nHola [Nombre del destinatario],  \nEspero que este mensaje te encuentre bien. Estoy interesado en conocer más detalles sobre el servicio X, especialmente en lo relacionado con [tema específico]. Agradecería mucho si pudieras enviarme información adicional o concertar una llamada para resolver mis dudas.  \nQuedo atento a tu respuesta.  \nSaludos,\n\n---\n\n🟡 *Correo 2: Confirmación de Reunión*  \n**Asunto:** Confirmación de reunión para el [Fecha]  \n**Cuerpo:**  \nEstimado/a [Nombre del destinatario],  \nConfirmo nuestra reunión programada para el día [fecha] a las [hora]. Si necesitas algún cambio en la hora o en el lugar, no dudes en comunicármelo.  \nGracias y quedo a tu disposición para cualquier consulta previa.  \nSaludos,\n\n---\n\n🔵 *Correo 3: Agradecimiento*  \n**Asunto:** Agradecimiento por tu apoyo en [proyecto/actividad]  \n**Cuerpo:**  \nHola [Nombre del destinatario],  \nQuiero expresarte mi sincero agradecimiento por tu valiosa colaboración en [proyecto o actividad]. Tu apoyo ha sido fundamental para alcanzar nuestros objetivos.  \nGracias nuevamente por tu compromiso y profesionalismo.  \nSaludos cordiales,\n\n---\n\n📌 RESPONDE SIEMPRE siguiendo el modelo, según el tipo de correo indicado por el usuario.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        220,
+        0
+      ],
+      "id": "af891e15-cf54-4cae-9d4b-8b341626d60b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        140,
+        180
+      ],
+      "id": "178f6cd6-d8a4-47fc-a3ec-5fdabdda7502",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "g03p9QSE9LAtclaC",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $fromAI(\"correo\") }}",
+        "subject": "= {{ $fromAI(\"asunto\") }}",
+        "emailType": "text",
+        "message": "={{ $fromAI(\"mensaje_correo\",\"el mensaje con saltos de linea\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        680,
+        220
+      ],
+      "id": "ddab9c9a-5434-4771-895f-1eecc599951c",
+      "name": "enviar_correo",
+      "webhookId": "1e684de8-e33d-407b-9b65-166b5a946098",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "OIscyKpfDxzVtmsq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1HUxUMe-ZkfvMkbEuVrgOhFfzm6amP0RkgafJt4miskI",
+          "mode": "list",
+          "cachedResultName": "clientes_fisiovital - clientes_fisiovital.csv",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HUxUMe-ZkfvMkbEuVrgOhFfzm6amP0RkgafJt4miskI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 374438694,
+          "mode": "list",
+          "cachedResultName": "clientes_fisiovital - clientes_fisiovital.csv.csv",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HUxUMe-ZkfvMkbEuVrgOhFfzm6amP0RkgafJt4miskI/edit#gid=374438694"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        480,
+        220
+      ],
+      "id": "f49b0014-bf2c-4c4d-8615-5fc4c2614640",
+      "name": "contactos",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bN6E04NXlvBqAyqX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        580,
+        0
+      ],
+      "id": "cb4115ac-6653-4682-be56-e03f5a64b7f3",
+      "name": "Telegram",
+      "webhookId": "169f19db-55a4-4edb-b308-ec0decd80da7",
+      "credentials": {
+        "telegramApi": {
+          "id": "PqxqNRl2fI33wp9E",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "1"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        160
+      ],
+      "id": "404b3904-8d6b-4549-9ca4-c317e704c056",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "enviar_correo": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "contactos": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bea82340-ffb1-43b1-9a40-390fc45d0c91",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3634738c37d6a3339e27635d9e21f4ea7817b45c67c52698ae530c4a7547ebae"
+  },
+  "id": "Z9G7UJrrTqEcC7Dj",
+  "tags": []
+}
